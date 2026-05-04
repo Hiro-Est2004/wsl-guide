@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WSL + Python Development Environment Setup Guide</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #24292e;
+    --heading: #1a1a2e;
+    --code-bg: #f6f8fa;
+    --code-border: #e1e4e8;
+    --accent: #0366d6;
+    --warn-bg: #fff3cd;
+    --warn-border: #ffc107;
+    --note-bg: #e8f4fd;
+    --note-border: #0366d6;
+    --new-bg: #e6ffed;
+    --new-border: #28a745;
+    --old-bg: #ffeef0;
+    --old-border: #d73a49;
+    --table-head: #f0f4f8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+    background: var(--bg);
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+  h1 { font-size: 2em; color: var(--heading); border-bottom: 3px solid var(--accent); padding-bottom: 10px; margin-top: 0; text-align: center;}
+  h2 { font-size: 1.5em; color: var(--heading); border-bottom: 1px solid #dee2e6; padding-bottom: 6px; margin-top: 2em; }
+  h3 { font-size: 1.15em; color: var(--heading); margin-top: 1.6em; }
+  h4 { font-size: 1em; color: #555; margin-top: 1.2em; }
+  a { color: var(--accent); }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    line-height: 1.5;
+  }
+  pre code {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.87em;
+  }
+  .note {
+    background: var(--note-bg);
+    border-left: 4px solid var(--note-border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 14px 0;
+  }
+  .warn {
+    background: var(--warn-bg);
+    border-left: 4px solid var(--warn-border);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 14px 0;
+  }
+  .new-badge {
+    display: inline-block;
+    background: var(--new-bg);
+    border: 1px solid var(--new-border);
+    border-radius: 12px;
+    padding: 1px 8px;
+    font-size: 0.78em;
+    color: #155724;
+    font-weight: bold;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+  .old-badge {
+    display: inline-block;
+    background: var(--old-bg);
+    border: 1px solid var(--old-border);
+    border-radius: 12px;
+    padding: 1px 8px;
+    font-size: 0.78em;
+    color: #721c24;
+    font-weight: bold;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+  .change-box {
+    background: var(--new-bg);
+    border: 1px solid var(--new-border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin: 14px 0;
+    font-size: 0.92em;
+  }
+  .change-box strong { color: #155724; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 14px 0;
+  }
+  th {
+    background: var(--table-head);
+    text-align: left;
+    padding: 8px 12px;
+    border: 1px solid #dee2e6;
+    font-size: 0.9em;
+  }
+  td {
+    padding: 7px 12px;
+    border: 1px solid #dee2e6;
+    font-size: 0.9em;
+  }
+  tr:nth-child(even) { background: #fafbfc; }
+  .toc {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin-bottom: 2em;
+  }
+  .toc ul { margin: 6px 0; padding-left: 20px; }
+  .toc li { margin: 3px 0; }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 0.85em;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  .step { display: flex; align-items: flex-start; margin: 8px 0; }
+  .step-content { flex: 1; }
+  .version-tag {
+    display: inline-block;
+    background: #6f42c1;
+    color: white;
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-size: 0.78em;
+    font-weight: bold;
+    margin-left: 6px;
+  }
+  footer {
+    margin-top: 60px;
+    padding-top: 16px;
+    border-top: 1px solid #dee2e6;
+    font-size: 0.85em;
+    color: #6a737d;
+  }
+</style>
+</head>
+<body>
+
+<h1>Setting Up a Python Development Environment<br>on Windows Subsystem for Linux (WSL)</h1>
+
+<div class="change-box">
+  <strong>(2026 Edition)</strong><br>
+  The WSL installation process has been greatly simplified. Previously, you had to run multiple <code>dism.exe</code> commands, manually download the kernel, and install Ubuntu from the Microsoft Store. Now it's done with a <strong>single command</strong>.<br>
+  Integration with VS Code has also become much easier.
+</div>
+
+<div class="toc">
+  <strong>Table of Contents</strong>
+  <ul id="toc-list"></ul>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const tocList = document.getElementById('toc-list');
+  const headings = document.querySelectorAll('h2, h3');
+  let currentH2Item = null;
+  let currentSubList = null;
+
+  headings.forEach(function(heading) {
+    if (!heading.id) {
+      heading.id = heading.textContent.trim().replace(/\s+/g, '-').replace(/[^\w\-]/g, '');
+    }
+
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = '#' + heading.id;
+    a.textContent = heading.textContent;
+    li.appendChild(a);
+
+    if (heading.tagName === 'H2') {
+      currentSubList = document.createElement('ul');
+      li.appendChild(currentSubList);
+      tocList.appendChild(li);
+      currentH2Item = li;
+    } else if (heading.tagName === 'H3') {
+      if (!currentSubList) {
+        currentSubList = document.createElement('ul');
+        if (currentH2Item) currentH2Item.appendChild(currentSubList);
+        else tocList.appendChild(currentSubList);
+      }
+      currentSubList.appendChild(li);
+    }
+  });
+});
+</script>
+
+<p>This guide covers how to install WSL to run a Linux-based OS (Ubuntu) on Windows, and how to set up a Python development environment on top of it. Follow the steps from top to bottom — skipping or reordering steps may cause issues.</p>
+
+<!-- ============================
+     1. WSL Installation
+     ============================ -->
+
+<h2 id="wsl-install">1. Installing WSL + Ubuntu</h2>
+
+<p>In the past, WSL required multiple commands and manual downloads. Now, <strong>a single command</strong> installs WSL2 and Ubuntu together.</p>
+
+<h3>Installation Steps</h3>
+
+<div class="step">
+  <span class="step-num">1</span>
+  <div class="step-content">
+    <strong>Open PowerShell as Administrator</strong><br>
+    Right-click the Start menu and select "Windows PowerShell (Admin)" or "Terminal (Admin)".
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-num">2</span>
+  <div class="step-content">
+    <strong>Run the following command</strong>
+<pre><code>wsl --install -d Ubuntu</code></pre>
+    This single command automatically handles all of the following:
+    <ul>
+      <li>Enabling the WSL feature</li>
+      <li>Enabling the Virtual Machine Platform feature</li>
+      <li>Installing the WSL2 kernel</li>
+      <li>Installing the latest Ubuntu LTS</li>
+    </ul>
+    <div class="warn" style="margin-top:8px">
+      <strong>Note:</strong> Running <code>wsl --install</code> without any options may not automatically install Ubuntu in some cases.
+      Always include <code>-d Ubuntu</code>.
+    </div>
+    <div class="note" style="margin-top:8px">
+      <strong>About version selection:</strong> <code>-d Ubuntu</code> installs the latest LTS available at the time (currently 24.04).
+      To pin a specific version, use <code>-d Ubuntu-24.04</code>.<br>
+      Run <code>wsl --list --online</code> to see all available distributions.
+    </div>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-num">3</span>
+  <div class="step-content">
+    <strong>Restart your PC (required)</strong>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-num">4</span>
+  <div class="step-content">
+    <strong>Launch Ubuntu</strong><br>
+    After restarting, Ubuntu does not start automatically. Launch it manually using one of the following:
+    <ul>
+      <li>Type <code>wsl</code> in PowerShell or Command Prompt and press Enter</li>
+      <li>Search for "Ubuntu" in the Start menu and click it</li>
+    </ul>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-num">5</span>
+  <div class="step-content">
+    <strong>Set up a username and password</strong><br>
+    On first launch, you will be prompted to create a Linux username and password. Enter anything you like.
+<pre><code>Enter new UNIX username: (enter any username)
+New password: (enter any password — input is hidden)
+Retype new password: (re-enter the same password)
+passwd: password updated successfully
+Installation successful!</code></pre>
+  </div>
+</div>
+
+<!-- ============================
+     2. Python Environment Setup
+     ============================ -->
+
+<h2 id="python-env">2. Python Environment Setup</h2>
+
+<div class="note">
+  <strong>All steps from here onwards are run in the WSL (Ubuntu) terminal, unless otherwise specified.</strong>
+  If WSL is not running, launch it by searching for "Ubuntu" in the Start menu, or by typing <code>wsl</code> in PowerShell.
+</div>
+
+<h3 id="path-setting">2.1 Configuring the PATH</h3>
+
+<p>By default, the WSL PATH includes the Windows PATH. If Python is installed on the Windows side, this can cause conflicts. The following setting makes the WSL PATH independent of Windows.</p>
+
+<p>Open the configuration file using the command below:</p>
+<div class="note">
+  <strong>About nano:</strong> nano is a text editor that runs inside the terminal.
+  Running the command opens the file directly in the terminal, where you can edit it right away.
+</div>
+<pre><code>$ sudo nano /etc/wsl.conf</code></pre>
+
+<p>Add the following to the opened file:</p>
+<pre><code>[interop]
+appendWindowsPath = false</code></pre>
+
+<p>When done editing, save and exit with the following steps:</p>
+<ol>
+  <li>Press <code>Ctrl + X</code> to begin exiting</li>
+  <li>Press <code>Y</code> to confirm saving</li>
+  <li>Press <code>Enter</code> to confirm the filename</li>
+</ol>
+
+<p>After saving, run the following in PowerShell to restart the WSL distribution:</p>
+<pre><code>wsl --shutdown</code></pre>
+
+
+<h3 id="apt-update">2.2 Updating apt</h3>
+
+<pre><code>$ sudo apt update
+$ sudo apt upgrade -y</code></pre>
+
+<p>Install the basic packages required for building:</p>
+<pre><code>$ sudo apt install -y build-essential</code></pre>
+
+<div class="note">
+  <strong>About build-essential:</strong>
+  <code>build-essential</code> is a meta-package that installs a collection of tools needed to compile source code,
+  including gcc (C/C++ compiler), make, and libc development headers.
+  It is also used internally by pyenv when building Python.
+</div>
+
+<h3 id="pyenv">2.3 Installing pyenv</h3>
+
+<p>Install pyenv, a tool for managing multiple Python versions.</p>
+
+<p>First, install the required dependencies:</p>
+<pre><code>$ sudo apt install -y git libedit-dev libncurses5-dev libbz2-dev \
+    libreadline-dev libsqlite3-dev zlib1g-dev libssl-dev \
+    libffi-dev liblzma-dev</code></pre>
+
+<p>Clone pyenv:</p>
+<pre><code>$ git clone https://github.com/pyenv/pyenv.git ~/.pyenv</code></pre>
+
+<p>Add the following to the end of <code>~/.bashrc</code>. You can use <code>nano</code> to edit it easily:</p>
+
+<div class="step">
+  <span class="step-num">1</span>
+  <div class="step-content">
+    <strong>Open the file</strong>
+    <pre><code>$ nano ~/.bashrc</code></pre>
+  </div>
+</div>
+<div class="step">
+  <span class="step-num">2</span>
+  <div class="step-content">
+    <strong>Use the <code>↓</code> arrow key to scroll to the bottom, then add the following</strong>
+    <pre><code>export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"</code></pre>
+  </div>
+</div>
+<div class="step">
+  <span class="step-num">3</span>
+  <div class="step-content">
+    <strong>Save and exit</strong><br>
+    <code>Ctrl + X</code> → <code>Y</code> → <code>Enter</code>
+  </div>
+</div>
+<div class="step">
+  <span class="step-num">4</span>
+  <div class="step-content">
+    <strong>Apply the changes</strong>
+    <pre><code>$ source ~/.bashrc</code></pre>
+  </div>
+</div>
+
+
+<p>Verify the installation:</p>
+<pre><code>$ pyenv --version
+pyenv 2.x.x</code></pre>
+
+<h3 id="python-install">2.4 Installing Python</h3>
+
+<p>List the last 5 available stable versions:</p>
+<pre><code>$ pyenv install --list | grep -E "^\s+3\.[0-9]+\.[0-9]+$" | tail -5</code></pre>
+
+<p>Check the latest 3.12 releases:</p>
+<pre><code>$ pyenv install --list | grep -E "^\s+3\.12\.[0-9]+$" | tail -3</code></pre>
+<pre><code>$ pyenv install 3.12.13</code></pre>
+
+<div class="note">
+  <strong>The following warning may appear during installation — it is safe to ignore:</strong>
+  <pre style="margin-top:8px"><code>WARNING: The Python tkinter extension was not compiled and GUI subsystem has been detected. Missing the Tk toolkit?</code></pre>
+  tkinter is a GUI library for building desktop apps with buttons, input fields, and windows.
+  It is not needed for data analysis or Jupyter, so this warning can be safely ignored.
+</div>
+
+<div class="note">
+  <strong>Which version to choose (as of May 2026):</strong><br>
+  3.14 is the latest but may be unstable as it was just released.
+  <strong>3.12 is currently stable and recommended.</strong>
+  3.8 reached end-of-life in October 2024 and should not be used for new environments.
+</div>
+
+<p>Set the installed version as the default:</p>
+<pre><code>$ pyenv global 3.12.13
+$ python --version
+Python 3.12.13</code></pre>
+
+<p>Update pip:</p>
+<pre><code>$ pip install --upgrade pip</code></pre>
+
+<!-- ============================
+     3. Jupyter
+     ============================ -->
+
+<h2 id="jupyter">3. Installing Jupyter</h2>
+
+<p>Install JupyterLab.</p>
+
+<div class="note">
+  <strong>JupyterLab vs Jupyter Notebook:</strong><br>
+  <strong>JupyterLab</strong> is the recommended option as it offers more features.
+  It is a superset of Jupyter Notebook, with a file browser, tab support, and more.
+</div>
+
+<pre><code>$ pip install jupyterlab</code></pre>
+
+<h3>How to Launch (browser-based)</h3>
+
+<div class="note">
+  If you are using the Jupyter extension in VS Code, you can open <code>.ipynb</code> files directly without this step.
+  The command-line launch method is useful when you want to use Jupyter in a browser.
+</div>
+
+<pre><code>$ jupyter lab</code></pre>
+
+<p>After launching, a URL like the one below will appear in the terminal. Copy and paste it into your browser:</p>
+
+<pre><code>http://localhost:8888/lab?token=xxxxxxxxxxxxxxxx</code></pre>
+
+<p>To stop the server, press <code>Ctrl + C</code> twice in the terminal.</p>
+
+<!-- ============================
+     4. VS Code
+     ============================ -->
+
+<h2 id="vscode">4. Integrating with VS Code</h2>
+
+<p>In older versions, this required alias configuration and manual PATH setup. Now it works simply by <strong>installing the WSL extension</strong>.</p>
+
+<h3>Setup Steps</h3>
+
+<div class="step">
+  <span class="step-num">1</span>
+  <div class="step-content">
+    <strong>Install VS Code on the Windows side</strong><br>
+    Download and install from <a href="https://code.visualstudio.com/" target="_blank">https://code.visualstudio.com/</a>.<br>
+    During installation, make sure <strong>"Add to PATH"</strong> is checked.
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-num">2</span>
+  <div class="step-content">
+    <strong>Install the WSL extension</strong><br>
+    Open the Extensions tab in VS Code, search for <code>WSL</code>, and install it.<br>
+    Extension ID: <code>ms-vscode-remote.remote-wsl</code>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-num">3</span>
+  <div class="step-content">
+    <strong>Add the VS Code PATH to WSL</strong><br>
+    Run the following command (replace <code>username</code> with your actual Windows username):
+<pre><code>$ echo 'export PATH="$PATH:/mnt/c/Users/username/AppData/Local/Programs/Microsoft VS Code/bin"' >> ~/.bashrc
+$ source ~/.bashrc</code></pre>
+  </div>
+</div>
+
+<div class="step">
+  <span class="step-num">4</span>
+  <div class="step-content">
+    <strong>Launch VS Code from the WSL terminal using <code>code .</code></strong><br>
+    Navigate to your working directory and run:
+<pre><code>$ cd ~/myproject
+$ code .</code></pre>
+    On the first run, VS Code Server will be installed automatically. Subsequent launches will be instant.
+  </div>
+</div>
+
+<h3>Recommended VS Code Extensions</h3>
+<p>Search for and install the following in the Extensions tab.</p>
+<table>
+  <tr><th>Extension</th><th>ID</th><th>Purpose</th></tr>
+  <tr><td>WSL</td><td><code>ms-vscode-remote.remote-wsl</code></td><td>WSL integration (required)</td></tr>
+  <tr><td>Python</td><td><code>ms-python.python</code></td><td>Code completion and debugging</td></tr>
+  <tr><td>Jupyter</td><td><code>ms-toolsai.jupyter</code></td><td>Edit and run .ipynb files directly in VS Code</td></tr>
+</table>
+
+<!-- ============================
+     5. Tips
+     ============================ -->
+<h2 id="tips">5. Tips &amp; Shortcuts</h2>
+
+<h3>Accessing Dropbox from WSL</h3>
+<pre><code>$ cd /mnt/c/Users/[WindowsUsername]/Dropbox</code></pre>
+
+
+<h3>WSL Management Commands</h3>
+<pre><code># List installed distributions
+wsl --list --verbose
+
+# Shut down WSL
+wsl --shutdown
+
+# Backup (export)
+wsl --export Ubuntu ubuntu-backup.tar
+
+# Restore (import)
+wsl --import Ubuntu C:\WSL\Ubuntu ubuntu-backup.tar</code></pre>
+
+
+
+<footer>
+  WSL + Python Development Environment Setup Guide (2026 Edition)<br>
+  Reference: <a href="https://learn.microsoft.com/en-us/windows/wsl/install" target="_blank">Microsoft Official WSL Installation Docs</a>
+</footer>
+
+</body>
+</html>
