@@ -279,16 +279,9 @@ a.anchor-link { display: none; }
   <div class="jp-RenderedMarkdown jp-RenderedHTMLCommon">
 
     <h1>Windows Subsystem for Linux (WSL) 上で<br>Python 開発環境を構築する</h1>
-
-    <div class="change-box">
-      <strong>（2026年版）</strong><br>
-      WSL のインストール方法が大幅に簡略化されました。
-      以前は <code>dism.exe</code> コマンドを複数回実行し、手動でカーネルをダウンロードし、Microsoft Store から Ubuntu を入れる必要がありましたが、
-      現在は <strong>コマンド1行</strong> で完結します。<br>
-      VS Code との連携も大幅に簡単になっています。
-    </div>
-
-    <p>ここではWindows 上でLinux 系OS（Ubuntu）を動かすためのWSL 導入方法と、WSL 上でPython 開発環境を構築する方法を示す。基本的にページの上から順に進めることを前提としており、順序を守らないとうまくいかない可能性がある。</p>
+    <strong>（2026年5月1日更新）</strong>
+    <p>ここではWindows 上でLinux 系OS（Ubuntu）を動かすためのWSL 導入方法と、WSL 上でPython 開発環境を構築する方法を示す。<br>
+    基本的にページの上から順に進めることを前提としており、順序を守らないとうまくいかない可能性がある。</p>
 
   </div>
 </div>
@@ -320,9 +313,9 @@ a.anchor-link { display: none; }
           必ず <code>-d Ubuntu</code> を付けること。
         </div>
         <div class="note" style="margin-top:8px">
-          <strong>バージョン指定について：</strong> <code>-d Ubuntu</code> はその時点での最新LTS が入る（現在は 24.04）。
-          特定バージョンに固定したい場合は <code>-d Ubuntu-24.04</code> のように指定する。<br>
-          インストール可能な一覧は <code>wsl --list --online</code> で確認できる。</p>
+          <strong>バージョン指定について：</strong> <code>-d Ubuntu</code> はその時点での最新LTS が入る（現在は 24.04）。<br>
+          特定バージョンに固定したい場合は <code>-d Ubuntu-24.04</code> のように指定する。
+          インストール可能な一覧は <code>wsl --list --online</code> で確認できる。
     </div>
 
     <p><strong>3.</strong> <strong>PC を再起動する（必ず）</strong></p>
@@ -345,6 +338,7 @@ Installation successful!</code></pre></p>
   </div>
 </div>
 
+
 <!-- ======== SECTION 2 ======== -->
 <div class="jp-Cell jp-Cell-inputWrapper" style="display:flex; flex-direction:row;">
   <div class="jp-InputPrompt jp-InputArea-prompt"></div>
@@ -352,16 +346,33 @@ Installation successful!</code></pre></p>
 
     <h2 id="python-env">2. Python 環境構築</h2>
 
+    <div class="note">
+      <strong>ここからの操作は指示がない場合、基本WSL（Ubuntu）のターミナル上で行う。</strong><br>
+      PowerShell やコマンドプロンプトではないので注意。
+      WSL を起動していない場合は、PowerShell で <code>wsl</code> と入力して起動する。
+    </div>
+
     <h3 id="path-setting">2.1 環境パスの設定</h3>
     <p>初期設定ではWSL の環境パスがWindows の環境パスを内包している。
     Windows 側でPython がインストール済みだと競合するため、WSL の環境パスを独立にする。</p>
 
-    <p>以下のコマンドで設定ファイルを開く：</p>
+    <p>以下のコマンドで設定ファイル（nano）を開く：</p>
+    <div class="note">
+      <strong>nano について：</strong> ターミナル上で動くテキストエディタ。
+      コマンドを実行するとターミナル内でファイルが開き、そのまま編集できる。
+    </div>
     <pre><code>$ sudo nano /etc/wsl.conf</code></pre>
 
     <p>開いたファイルに以下を追加する：</p>
     <pre><code>[interop]
 appendWindowsPath = false</code></pre>
+
+    <p>編集が終わったら以下の操作で保存して閉じる：</p>
+    <ol>
+      <li><code>Ctrl + X</code> で終了を開始する</li>
+      <li><code>Y</code> を押して保存を確定する</li>
+      <li><code>Enter</code> を押してファイル名を確定する</li>
+    </ol>
 
     <p>保存後、PowerShell で以下を実行してディストリビューションを再起動する：</p>
     <pre><code>wsl --shutdown</code></pre>
@@ -372,6 +383,12 @@ $ sudo apt upgrade -y</code></pre>
 
     <p>ビルドに必要な基本パッケージをインストールする：</p>
     <pre><code>$ sudo apt install -y build-essential</code></pre>
+
+    <div class="note">
+      <strong>build-essential について：</strong>
+      <code>build-essential</code> はビルド用必須ツール（gcc, make等）のメタパッケージ。
+      pyenvによるPythonのインストールに必要。
+    </div>
 
     <h3 id="pyenv">2.3 pyenv のインストール</h3>
     <p>複数のPython バージョンを管理できるpyenv をインストールする。</p>
@@ -405,7 +422,7 @@ pyenv 2.x.x</code></pre>
     <p>末尾5件に絞ってインストール可能なバージョンを確認する：</p>
     <pre><code>$ pyenv install --list | grep -E "^\s+3\.[0-9]+\.[0-9]+$" | tail -5</code></pre>
 
-    <p>3.12 系の最新版をインストールする：</p>
+    <p>3.12 系（2026年5月1日）の最新版をインストールする：</p>
     <pre><code>$ pyenv install --list | grep -E "^\s+3\.12\.[0-9]+$" | tail -3</code></pre>
     <pre><code>$ pyenv install 3.12.13</code></pre>
 
@@ -449,8 +466,7 @@ Python 3.12.13</code></pre>
     </div>
 
     <pre><code>$ pip install jupyterlab</code></pre>
-
-    <h3>起動方法</h3>
+    <h3>起動方法（ブラウザで使う場合、VS Code でJupyter を使う場合はこの手順は不要）</h3>
     <pre><code>$ jupyter lab</code></pre>
 
     <p>起動後、ターミナルに以下のような URL が表示されるので、コピーしてブラウザに貼り付けて開く：</p>
@@ -514,7 +530,7 @@ $ code .</code></pre>
     <h2 id="tips">5. Tips &amp; ショートカット</h2>
 
     <h3>WSL からDropboxへのアクセス</h3>
-    <pre><code>$ cd /mnt/c/Users/[Windowsユーザー名]/Dropbox</code></pre>
+    <pre><code>$ cd /mnt/c/Users/Windowsユーザー名/Dropbox</code></pre>
 
     <h3>WSL の管理コマンド</h3>
     <pre><code># インストール済みディストリビューションの確認
