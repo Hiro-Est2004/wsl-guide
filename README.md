@@ -4,7 +4,9 @@ Windows Subsystem for Linux（WSL）上にPython 開発環境を構築するた�
 
 ## 📖 ガイドを読む
 
-👉 **[https://Hiro-Est2004.github.io/wsl-guide](https://Hiro-Est2004.github.io/wsl-guide)**
+👉 日本語版：**[https://Hiro-Est2004.github.io/wsl-guide](https://Hiro-Est2004.github.io/wsl-guide)**
+
+👉 English：**[https://Hiro-Est2004.github.io/wsl-guide/wsl-jupyter-guide-ver_english.html](https://Hiro-Est2004.github.io/wsl-guide/wsl-jupyter-guide-ver_english.html)**
 
 ## 内容
 
